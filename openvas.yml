@@ -47,7 +47,7 @@ services:
         - "443:443"
         - "9390:9390"
       volumes:
-        - "./data/openvas:/var/lib/openvas/mgr/"
+        - "./data/openvas:/var/lib/openvas/"
       environment:
         PUBLIC_HOSTNAME: 127.0.0.1
       labels:
