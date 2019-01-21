@@ -1,0 +1,60 @@
+version: '3.7'
+services:
+  zabbix-db:
+    image: mysql:8.0.4
+    container_name: zabbix-db
+    restart: always
+    command: mysqld --default-authentication-plugin=mysql_native_password
+    ports:
+      - "3306:3306"
+    environment:
+      TZ: Asia/Taipei
+      MYSQL_ROOT_PASSWORD: corecloudtech
+      MYSQL_USER: zabbix
+      MYSQL_PASSWORD: yii2advanced
+      MYSQL_DATABASE: zabbix
+  zabbix-server-mysql:
+    image: zabbix/zabbix-server-mysql:centos-4.0-latest
+    container_name: zabbix-server-mysql
+    restart: always
+    ports:
+      - "10051:10051"
+    environment:
+      DB_SERVER_HOST: zabbix-db
+      MYSQL_DATABASE: zabbix
+      MYSQL_USER: zabbix
+      MYSQL_PASSWORD: yii2advanced
+      MYSQL_ROOT_PASSWORD: corecloudtech
+      ZBX_SERVER_HOST: zabbix-server-mysql
+      PHP_TZ: Asia/Taipei
+    depends_on:
+      - zabbix-db
+  zabbix-web-nginx-mysql:
+    image: zabbix/zabbix-web-nginx-mysql:centos-4.0-latest
+    container_name: zabbix-web-nginx-mysql
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DB_SERVER_HOST: zabbix-db
+      MYSQL_DATABASE: zabbix
+      MYSQL_USER: zabbix
+      MYSQL_PASSWORD: yii2advanced
+      MYSQL_ROOT_PASSWORD: corecloudtech
+    depends_on:
+      - zabbix-db
+      - zabbix-server-mysql
+  zabbix-agent:
+    image: zabbix/zabbix-agent:centos-4.0-latest
+    container_name: zabbix-agent
+    restart: always
+    ports:
+      - "10050:10050"
+    links:
+      - zabbix-server-mysql:zabbix-server
+    volumes:
+      - ./zbx_env/etc/zabbix/zabbix_agentd.d:/etc/zabbix/zabbix_agentd.d:ro
+      - ./zbx_env/var/lib/zabbix/modules:/var/lib/zabbix/modules:ro
+      - ./zbx_env/var/lib/zabbix/enc:/var/lib/zabbix/enc:ro
+      - ./zbx_env/var/lib/zabbix/ssh_keys:/var/lib/zabbix/ssh_keys:ro
