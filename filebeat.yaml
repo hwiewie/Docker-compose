@@ -26,6 +26,7 @@ data:
     filebeat.autodiscover:
       providers:
         - type: kubernetes
+          node: ${NODE_NAME}
           hints.enabled: true
           include_annotations: ["artifact.spinnaker.io/name","ad.datadoghq.com/tags"]
           include_labels: ["app.kubernetes.io/name"]
@@ -57,11 +58,14 @@ data:
                     
     processors:
       - add_cloud_metadata: ~
+      - add_host_metadata:
       - drop_fields:
           when:
             has_fields: ['kubernetes.labels.app']
           fields:
             - 'kubernetes.labels.app'
 
-    output.elasticsearch:
-      hosts: ['${ELASTICSEARCH_HOST:elasticsearch}:${ELASTICSEARCH_PORT:9200}']
+    #output.elasticsearch:
+    #  hosts: ['${ELASTICSEARCH_HOST:elasticsearch}:${ELASTICSEARCH_PORT:9200}']
+    output.logstash:
+      hosts: '${LOGSTASH_URL}'
