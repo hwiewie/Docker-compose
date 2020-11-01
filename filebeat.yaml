@@ -14,9 +14,11 @@ metadata:
 data:
   filebeat.yml: |-
     filebeat.config:
-    #  inputs:
-    #    path: ${path.config}/inputs.d/*.yml
-    #    reload.enabled: true
+      inputs:
+        path: /var/log/containers/*.log
+        reload.enabled: true
+        exclude_files: ['tiller-deploy-*']
+        fields_under_root: true
       modules:
         path: ${path.config}/modules.d/*.yml
         reload.enabled: true
